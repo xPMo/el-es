@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # {{{ Default parameter vales
-(( $+ELES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
+(( $+ELES_COLUMNS )) || ELES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 # }}}
 # {{{ Util
 .el_es::util::right_justify() {
@@ -190,7 +190,7 @@ el-es(){
 		for f in ${ELES_COLUMNS:|avail_functions}; do
 			echo >&2 "(no such function '.el_es::column::$f')"
 		done
-		ELES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
+		ELES_COLUMNS=( ${ELES_COLUMNS:*avail_functions} )
 	}
 
 	local -A widths
