@@ -111,8 +111,9 @@
 		# other-writable and sticky
 		$(( 01002 )) ) codes+=( $ftcolors[tw] ) ;;
 	esac
+
+	# executable
 	if (( ! $#codes )); then
-		(( $2 &  0111 )) && codes+=( $ftcolors[ex] )
 		(( $2 &  0111 )) && codes+=( $ftcolors[ex] )
 	fi
 	code=${(j:;:)codes}
