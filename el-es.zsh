@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 # {{{ Default parameter vales
-(( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
+(( $+ELES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 # }}}
 # {{{ Util
-.zls_column::util::right_justify() {
+.el_es::column::util::right_justify() {
 	# [value] [column name] [ [lpad=1] [rpad=0] ]
 	# handles offset and width handling
 	local -i offset
@@ -14,19 +14,19 @@
 }
 # }}}
 # {{{ Debug bar
-.zls_column::_debug(){
+.el_es::column::_debug(){
 	printf -v entry ' |'
 	widths[_debug]=-4
 }
 # }}}
 # {{{ Mode
-.zls_column::mode(){
+.el_es::column::mode(){
 	printf -v entry $hstat[3]
 	widths[mode]=-11
 }
 # }}}
 # {{{ Mode with UID/GID mismatches faded 
-.zls_column::mode_plus(){
+.el_es::column::mode_plus(){
 	entry=${hstat[3][1]}
 	(( $+groups )) || groups=( ${=$(groups)} )
 	# fade u(rwx)?
@@ -45,8 +45,8 @@
 }
 # }}}
 # {{{ Link count 
-.zls_column::nlink(){
-	.zls_column::util::right_justify $stat[4] nlink 1
+.el_es::column::nlink(){
+	.el_es::column::util::right_justify $stat[4] nlink 1
 	if (( hstat[4] > 1 ))
 	then entry+=$stat[4]
 	else entry+=$'\e[37m'$stat[4]$'\e[0m'
@@ -54,31 +54,31 @@
 }
 # }}}
 # {{{ UID
-.zls_column::uid(){
-	.zls_column::util::right_justify $stat[5] uid
+.el_es::column::uid(){
+	.el_es::column::util::right_justify $stat[5] uid
 	entry+=$stat[5]
 }
 # }}}
 # {{{ GID
-.zls_column::gid(){
-	.zls_column::util::right_justify $stat[6] gid
+.el_es::column::gid(){
+	.el_es::column::util::right_justify $stat[6] gid
 	entry+=$stat[6]
 }
 # }}}
 # {{{ User
-.zls_column::user(){
+.el_es::column::user(){
 	entry=$hstat[5]
 	(( widths[user] > -1 - ${#hstat[5]} )) && (( widths[user] = -1 - ${#hstat[5]} ))
 }
 # }}}
 # {{{ Group
-.zls_column::group(){
+.el_es::column::group(){
 	entry=$hstat[6]
 	(( widths[group] > -1 - ${#hstat[6]} )) && (( widths[group] = -1 - ${#hstat[6]} ))
 }
 # }}}
 # {{{ Filename coloring
-.zls_column::filename::code () {
+.el_es::column::filename::code () {
 	local -i reg=0
 
 	# file type
@@ -116,13 +116,10 @@
 	code=${(j:;:)codes}
 
 	# this short-circuits
-	if (( $#codes )) || (( ${#code::=$namecolors[(k)$1]} )); then
-	else
-		entry=$name
-	fi
+	(( ${#code:=$namecolors[(k)$1]} ))
 }
 
-.zls_column::filename () {
+.el_es::column::filename () {
 	# (q+) quotes unprintables as $' '
 	local name=${(q+)1}
 	local code
@@ -147,8 +144,8 @@
 	(( widths[filename] > len )) && (( widths[filename] = len ))
 }
 # }}}
-# {{{ elles
-elles(){
+# {{{ el-es
+el-es(){
 	setopt localoptions octalzeroes cbases nodotglob extendedglob
 	zmodload -F zsh/stat b:zstat
 
@@ -159,17 +156,17 @@ elles(){
 	set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 
 	() {
-		local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.zls_column::*')"}#*::})
-		for f in ${ELLES_COLUMNS:|avail_functions}; do
-			echo >&2 "(no such function '.zls_column::$f')"
+		local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.el_es::column::*')"}#*::column::})
+		for f in ${ELES_COLUMNS:|avail_functions}; do
+			echo >&2 "(no such function '.el_es::column::$f')"
 		done
-		ELLES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
+		ELES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
 	}
 
 	local -A widths
 	local -i len
 	# declare array for each column, strip *::
-	local -a $^ELLES_COLUMNS
+	local -a $^ELES_COLUMNS
 
 	# {{{ Prepare columns
 	for f in ${@:-${~:-'*'}}; do
@@ -186,9 +183,9 @@ elles(){
 			zstat -s -A hlstat $f
 		fi
 
-		for column in ${(u)ELLES_COLUMNS}; do
+		for column in ${(u)ELES_COLUMNS}; do
 			local entry= width=
-			.zls_column::$column $f
+			.el_es::column::$column $f
 			# append to column's associated array
 			eval "$column"'+=( $entry )'
 		done
@@ -200,7 +197,7 @@ elles(){
 	# Otherwise, right-justified, must be done by escape sequence in column
 	local -A pos
 	local -i i=1
-	for column in $ELLES_COLUMNS; do
+	for column in $ELES_COLUMNS; do
 		if (( widths[$column] < 0 ))
 		then (( pos[$column] = i, i -= widths[$column] ))
 		else (( pos[$column] =    i += widths[$column] ))
@@ -209,7 +206,7 @@ elles(){
 	# }}}
 	# {{{ Print columns
 	for (( i=1; i <= len; i++ )); do
-		for column in $ELLES_COLUMNS; do
+		for column in $ELES_COLUMNS; do
 			printf '\e['"${pos[$column]}G%s" ${(P)${column##*::}[i]}
 		done
 		echo
@@ -217,5 +214,5 @@ elles(){
 	# }}}
 }
 # }}}
-[[ $- = *i* ]] || elles "$@"
+[[ $- = *i* ]] || el-es "$@"
 # vim:foldmethod=marker
