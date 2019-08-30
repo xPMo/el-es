@@ -14,6 +14,24 @@
 	(( widths[$column] < offset + ${4:-0} )) &&
 		(( widths[$column] = offset + ${4:-0} ))
 }
+.el_es::util::hnumber(){
+	# [value] [prefix-index] [[reply]]
+	local -a prefix=(k M G T)
+	local ret="${3:-REPLY}"
+	local -i n=$1
+	while :; do
+		if (( n >= 10000 )); then
+			(( n /= 1000, i += 1 ))
+			continue
+		elif (( n >= 1000 )); then
+			(( n /= 100 ))
+			: ${(P)ret::="$n[1].$n[2]$prefix[i+1]"}
+		else
+			: ${(P)ret::="$n$prefix[i]"}
+		fi
+		break
+	done
+}
 # }}}
 # {{{ Debug bar
 .el_es::column::_debug(){
@@ -77,6 +95,13 @@
 .el_es::column::group(){
 	entry=$hstat[6]
 	(( widths[group] > -1 - ${#hstat[6]} )) && (( widths[group] = -1 - ${#hstat[6]} ))
+}
+# }}}
+# {{{ Human-readable Size
+.el_es::column::hsize(){
+	.el_es::util::hnumber $stat[8]
+	.el_es::util::right_justify $REPLY
+	entry+=$REPLY
 }
 # }}}
 # {{{ Filename coloring
