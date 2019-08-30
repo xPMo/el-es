@@ -79,7 +79,6 @@
 # }}}
 # {{{ Filename coloring
 .zls_column::filename::code () {
-	# (q+) quotes unprintables as $' '
 	local -i reg=0
 
 	# file type
@@ -124,6 +123,7 @@
 }
 
 .zls_column::filename () {
+	# (q+) quotes unprintables as $' '
 	local name=${(q+)1}
 	local code
 	local -i len=
