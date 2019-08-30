@@ -1,5 +1,16 @@
 # El-Es
 
+Currently, the core functionality is implemented,
+and the columns chosen are controlled by the array `$ELES_COLUMNS`.
+
+The equivalent of `ls -lh` would be:
+```zsh
+ELES_COLUMNS=(mode nlink user group hsize mtime filename)
+el-es
+```
+
+See the current compatibility status at issues #2 and #3.
+
 ---
 
 **Features:**
