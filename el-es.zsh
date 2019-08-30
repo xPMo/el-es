@@ -81,6 +81,7 @@
 # }}}
 # {{{ Filename coloring
 .el_es::column::filename::code () {
+	# man 7 inode
 	local -i reg=0
 
 	# file type
