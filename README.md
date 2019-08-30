@@ -28,7 +28,7 @@ Define a new column with a new function:
 	fi
 	# calculates the offset based on text length,
 	# so don't pass it embedded escape codes:
-	.el_es::column::util::right_justify $size
+	.el_es::util::right_justify $size
 }
 ELES_COLUMNS+=(mycolumn)
 ```

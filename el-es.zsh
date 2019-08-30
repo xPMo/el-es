@@ -3,7 +3,7 @@
 (( $+ELES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 # }}}
 # {{{ Util
-.el_es::column::util::right_justify() {
+.el_es::util::right_justify() {
 	# [value] [[column name]] [[lpad=1]] [[rpad=0]]
 	# handles offset and width handling
 	local -i offset
@@ -48,7 +48,7 @@
 # }}}
 # {{{ Link count 
 .el_es::column::nlink(){
-	.el_es::column::util::right_justify $stat[4]
+	.el_es::util::right_justify $stat[4]
 	if (( hstat[4] > 1 ))
 	then entry+=$stat[4]
 	else entry+=$'\e[37m'$stat[4]$'\e[0m'
@@ -57,13 +57,13 @@
 # }}}
 # {{{ UID
 .el_es::column::uid(){
-	.el_es::column::util::right_justify $stat[5] uid
+	.el_es::util::right_justify $stat[5] uid
 	entry+=$stat[5]
 }
 # }}}
 # {{{ GID
 .el_es::column::gid(){
-	.el_es::column::util::right_justify $stat[6] gid
+	.el_es::util::right_justify $stat[6] gid
 	entry+=$stat[6]
 }
 # }}}
