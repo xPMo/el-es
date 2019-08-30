@@ -125,8 +125,11 @@
 	local code
 	local -i len=
 	(( len = -${#1} ))
-	# get ELLES_COLORS code for file
-	$0::code $1 $stat[3]
+	# get ELES_COLORS code for file
+	if ! $0::code $1 $stat[3]; then
+		entry=$name
+		return
+	fi
 	local lcode=$code
 	case $(( (stat[3] & 0170000 == 0120000) + $+lstat )) in
 		0) # no symlink
