@@ -217,4 +217,5 @@ elles(){
 	# }}}
 }
 # }}}
+[[ $- = *i* ]] || elles "$@"
 # vim:foldmethod=marker
