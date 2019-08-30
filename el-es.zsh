@@ -203,10 +203,9 @@ el-es(){
 	# {{{ Prepare columns
 	for f in ${@:-${~:-'*'}}; do
 
-		(( len++ ))
-
-		zstat    -A  stat -L $f
+		zstat    -A  stat -L $f || continue
 		zstat -s -A hstat -L $f
+		(( len++ ))
 
 		# symlink?
 		unset lstat hlstat
