@@ -105,6 +105,7 @@
 .el_es::column::filename::code () {
 	# man 7 inode
 	local -i reg=0
+	local -a codes
 
 	# file type
 	case $(( $2 & 0170000 )) in
