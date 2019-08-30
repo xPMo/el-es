@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
-
+# {{{ Default parameter vales
+(( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
+# }}}
 # {{{ Util
 .zls_column::util::right_justify() {
 	# [value] [column name] [ [lpad=1] [rpad=0] ]
@@ -79,6 +81,7 @@
 .zls_column::filename::code () {
 	# (q+) quotes unprintables as $' '
 	local -i reg=0
+
 	# file type
 	case $(( $2 & 0170000 )) in
 		$(( 0140000 )) ) codes=( $ftcolors[so] ) ;;
@@ -95,6 +98,7 @@
 		$(( 0020000 )) ) codes=( $ftcolors[cd] ) ;;
 		$(( 0010000 )) ) codes=( $ftcolors[pi] ) ;;
 	esac
+
 	# setuid/setgid/sticky/other-writable
 	(( $2 & 04000 )) && codes+=( $ftcolors[su] )
 	(( $2 & 02000 )) && codes+=( $ftcolors[sg] )
@@ -111,7 +115,8 @@
 		(( $2 &  0111 )) && codes+=( $ftcolors[ex] )
 	fi
 	code=${(j:;:)codes}
-	# short-circuits
+
+	# this short-circuits
 	if (( $#codes )) || (( ${#code::=$namecolors[(k)$1]} )); then
 	else
 		entry=$name
@@ -142,9 +147,6 @@
 	(( widths[filename] > len )) && (( widths[filename] = len ))
 }
 # }}}
-# Default value
-(( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
-
 # {{{ elles
 elles(){
 	setopt localoptions octalzeroes cbases nodotglob extendedglob
