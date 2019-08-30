@@ -4,13 +4,15 @@
 # }}}
 # {{{ Util
 .el_es::column::util::right_justify() {
-	# [value] [column name] [ [lpad=1] [rpad=0] ]
+	# [value] [[column name]] [[lpad=1]] [[rpad=0]]
 	# handles offset and width handling
 	local -i offset
+	local column=${2:-${funcstack[2]#*::column::}}
+
 	(( offset = ${#1} + ${3:-1} ))
 	entry=$'\e['"$offset"D
-	(( widths[$2] < offset + ${4:-0} )) &&
-		(( widths[$2] = offset + ${4:-0} ))
+	(( widths[$column] < offset + ${4:-0} )) &&
+		(( widths[$column] = offset + ${4:-0} ))
 }
 # }}}
 # {{{ Debug bar
@@ -46,7 +48,7 @@
 # }}}
 # {{{ Link count 
 .el_es::column::nlink(){
-	.el_es::column::util::right_justify $stat[4] nlink 1
+	.el_es::column::util::right_justify $stat[4]
 	if (( hstat[4] > 1 ))
 	then entry+=$stat[4]
 	else entry+=$'\e[37m'$stat[4]$'\e[0m'
