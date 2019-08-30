@@ -18,7 +18,7 @@
 	# [value] [prefix-index] [[reply]]
 	local -a prefix=(k M G T)
 	local ret="${3:-REPLY}"
-	local -i n=$1
+	local -i n=$1 i=$2
 	while (( n >= 10000 )); do
 		(( n /= 1000, i += 1 ))
 	done
