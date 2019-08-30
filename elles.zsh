@@ -145,14 +145,17 @@
 # Default value
 (( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 
+# {{{ elles
 elles(){
 	setopt localoptions octalzeroes cbases nodotglob extendedglob
 	zmodload -F zsh/stat b:zstat
 
+	# read in LS_COLORS
 	local -A namecolors
 	set -A namecolors ${(@s:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 	local -A ftcolors
 	set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
+
 	() {
 		local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.zls_column::*')"}#*::})
 		for f in ${ELLES_COLUMNS:|avail_functions}; do
@@ -168,21 +171,26 @@ elles(){
 
 	# {{{ Prepare columns
 	for f in ${@:-${~:-'*'}}; do
+
 		(( len++ ))
+
 		zstat    -A  stat -L $f
 		zstat -s -A hstat -L $f
+
 		# symlink?
 		unset lstat hlstat
 		if (( $stat[3] & 0170000 == 0120000 )); then
 			zstat    -A  lstat $f
 			zstat -s -A hlstat $f
 		fi
+
 		for column in ${(u)ELLES_COLUMNS}; do
 			local entry= width=
 			.zls_column::$column $f
 			# append to column's associated array
 			eval "$column"'+=( $entry )'
 		done
+
 	done
 	# }}}
 	# {{{ Set cursor positions for each column
@@ -206,4 +214,5 @@ elles(){
 	done
 	# }}}
 }
+# }}}
 # vim:foldmethod=marker
