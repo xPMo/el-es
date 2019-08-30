@@ -1,12 +1,5 @@
 #!/usr/bin/env zsh
 
-setopt localoptions octalzeroes cbases nodotglob extendedglob
-zmodload -F zsh/stat b:zstat
-
-local -A namecolors
-set -A namecolors ${(@s:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
-local -A ftcolors
-set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 # {{{ Util
 .zls_column::util::right_justify() {
 	# [value] [column name] [ [lpad=1] [rpad=0] ]
@@ -152,56 +145,65 @@ set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 # Default value
 (( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 
-() {
-	local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.zls_column::*')"}#*::})
-	for f in ${ELLES_COLUMNS:|avail_functions}; do
-		echo >&2 "(no such function '.zls_column::$f')"
-	done
-	ELLES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
-}
+elles(){
+	setopt localoptions octalzeroes cbases nodotglob extendedglob
+	zmodload -F zsh/stat b:zstat
 
-local -A widths
-local -i len
-# declare array for each column, strip *::
-local -a $^ELLES_COLUMNS
+	local -A namecolors
+	set -A namecolors ${(@s:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
+	local -A ftcolors
+	set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
+	() {
+		local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.zls_column::*')"}#*::})
+		for f in ${ELLES_COLUMNS:|avail_functions}; do
+			echo >&2 "(no such function '.zls_column::$f')"
+		done
+		ELLES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
+	}
 
-# {{{ Prepare columns
-for f in ${@:-${~:-'*'}}; do
-	(( len++ ))
-	zstat    -A  stat -L $f
-	zstat -s -A hstat -L $f
-	# symlink?
-	unset lstat hlstat
-	if (( $stat[3] & 0170000 == 0120000 )); then
-		zstat    -A  lstat $f
-		zstat -s -A hlstat $f
-	fi
-	for column in ${(u)ELLES_COLUMNS}; do
-		local entry= width=
-		.zls_column::$column $f
-		# append to column's associated array
-		eval "$column"'+=( $entry )'
+	local -A widths
+	local -i len
+	# declare array for each column, strip *::
+	local -a $^ELLES_COLUMNS
+
+	# {{{ Prepare columns
+	for f in ${@:-${~:-'*'}}; do
+		(( len++ ))
+		zstat    -A  stat -L $f
+		zstat -s -A hstat -L $f
+		# symlink?
+		unset lstat hlstat
+		if (( $stat[3] & 0170000 == 0120000 )); then
+			zstat    -A  lstat $f
+			zstat -s -A hlstat $f
+		fi
+		for column in ${(u)ELLES_COLUMNS}; do
+			local entry= width=
+			.zls_column::$column $f
+			# append to column's associated array
+			eval "$column"'+=( $entry )'
+		done
 	done
-done
-# }}}
-# {{{ Set cursor positions for each column
-# If  w < 0,  left-justified, do not move cursor to right
-# Otherwise, right-justified, must be done by escape sequence in column
-local -A pos
-local -i i=1
-for column in $ELLES_COLUMNS; do
-	if (( widths[$column] < 0 ))
-	then (( pos[$column] = i, i -= widths[$column] ))
-	else (( pos[$column] =    i += widths[$column] ))
-	fi
-done
-# }}}
-# {{{ Print columns
-for (( i=1; i <= len; i++ )); do
+	# }}}
+	# {{{ Set cursor positions for each column
+	# If  w < 0,  left-justified, do not move cursor to right
+	# Otherwise, right-justified, must be done by escape sequence in column
+	local -A pos
+	local -i i=1
 	for column in $ELLES_COLUMNS; do
-		printf '\e['"${pos[$column]}G%s" ${(P)${column##*::}[i]}
+		if (( widths[$column] < 0 ))
+		then (( pos[$column] = i, i -= widths[$column] ))
+		else (( pos[$column] =    i += widths[$column] ))
+		fi
 	done
-	echo
-done
-# }}}
+	# }}}
+	# {{{ Print columns
+	for (( i=1; i <= len; i++ )); do
+		for column in $ELLES_COLUMNS; do
+			printf '\e['"${pos[$column]}G%s" ${(P)${column##*::}[i]}
+		done
+		echo
+	done
+	# }}}
+}
 # vim:foldmethod=marker
