@@ -1,5 +1,16 @@
 # El-Es
 
+---
+
+**Features:**
+
+- Uses `LS_COLORS`!
+- That's right, it uses `LS_COLORS`!
+- Configure `ls` and `el-es` in the same way using `LS_COLORS`!
+- It works.
+
+---
+
 An extensible `ls`.
 
 Define a new column with a new function:
