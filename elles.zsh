@@ -130,7 +130,7 @@ set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 	local code
 	local -i len=
 	(( len = -${#1} ))
-	# get LS_COLORS code for file
+	# get ELLES_COLORS code for file
 	$0::code $1 $stat[3]
 	local lcode=$code
 	case $(( (stat[3] & 0170000 == 0120000) + $+lstat )) in
@@ -150,20 +150,20 @@ set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 }
 # }}}
 # Default value
-(( $+LS_COLUMNS )) || LS_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
+(( $+ELLES_COLUMNS )) || ELLES_COLUMNS=(mode_plus nlink user group hsize mtime filename _debug )
 
 () {
 	local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.zls_column::*')"}#*::})
-	for f in ${LS_COLUMNS:|avail_functions}; do
+	for f in ${ELLES_COLUMNS:|avail_functions}; do
 		echo >&2 "(no such function '.zls_column::$f')"
 	done
-	LS_COLUMNS=( ${LS_COLUMNS:*avail_functions} )
+	ELLES_COLUMNS=( ${ELLES_COLUMNS:*avail_functions} )
 }
 
 local -A widths
 local -i len
 # declare array for each column, strip *::
-local -a $^LS_COLUMNS
+local -a $^ELLES_COLUMNS
 
 # {{{ Prepare columns
 for f in ${@:-${~:-'*'}}; do
@@ -176,7 +176,7 @@ for f in ${@:-${~:-'*'}}; do
 		zstat    -A  lstat $f
 		zstat -s -A hlstat $f
 	fi
-	for column in ${(u)LS_COLUMNS}; do
+	for column in ${(u)ELLES_COLUMNS}; do
 		local entry= width=
 		.zls_column::$column $f
 		# append to column's associated array
@@ -189,7 +189,7 @@ done
 # Otherwise, right-justified, must be done by escape sequence in column
 local -A pos
 local -i i=1
-for column in $LS_COLUMNS; do
+for column in $ELLES_COLUMNS; do
 	if (( widths[$column] < 0 ))
 	then (( pos[$column] = i, i -= widths[$column] ))
 	else (( pos[$column] =    i += widths[$column] ))
@@ -198,7 +198,7 @@ done
 # }}}
 # {{{ Print columns
 for (( i=1; i <= len; i++ )); do
-	for column in $LS_COLUMNS; do
+	for column in $ELLES_COLUMNS; do
 		printf '\e['"${pos[$column]}G%s" ${(P)${column##*::}[i]}
 	done
 	echo
