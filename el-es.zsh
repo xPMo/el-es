@@ -29,6 +29,12 @@
 		: ${(P)ret::="$n$prefix[i]"}
 	fi
 }
+.el_es::util::datef(){
+	zmodload zsh/datetime
+	local column=${2:-${funcstack[2]#*::column::}}
+	strftime -s entry '%F' $1
+	widths[$column]=-11
+}
 # }}}
 # {{{ Debug bar
 .el_es::column::_debug(){
@@ -100,6 +106,11 @@
 	.el_es::util::right_justify $REPLY
 	entry+=$REPLY
 }
+# }}}
+# {{{ atime / mtime / ctime
+.el_es::column::atime(){ .el_es::util::datef $stat[9] }
+.el_es::column::mtime(){ .el_es::util::datef $stat[10] }
+.el_es::column::ctime(){ .el_es::util::datef $stat[11] }
 # }}}
 # {{{ Filename coloring
 .el_es::column::filename::code () {
