@@ -174,6 +174,12 @@
 	(( widths[filename] > len )) && (( widths[filename] = len ))
 }
 # }}}
+# {{{ Heading
+.el_es::heading(){
+	for i in $headings; do
+	done
+}
+# }}}
 # {{{ el-es
 el-es(){
 	setopt localoptions octalzeroes cbases nodotglob extendedglob
@@ -186,12 +192,19 @@ el-es(){
 	set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 
 	local -a columns
+	local -a headings
 	() {
 		local avail_columns=(${(@)${(@f)"$(typeset -m -f + -- '.el_es::column::*')"}#*::column::})
 		for f in ${ELES_COLUMNS:|avail_columns}; do
 			echo >&2 "(no such function '.el_es::column::$f')"
 		done
 		columns=( ${ELES_COLUMNS:*avail_columns} )
+
+		local avail_headings=(${(@)${(@f)"$(typeset -m -f + -- '.el_es::heading::*')"}#*::heading::})
+		for f in ${ELES_HEADINGS:|avail_headings}; do
+			echo >&2 "(no such function '.el_es::heading::$f')"
+		done
+		headings=( ${ELES_HEADINGS:*avail_headings} )
 	}
 
 	local -A widths
