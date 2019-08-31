@@ -185,18 +185,19 @@ el-es(){
 	local -A ftcolors
 	set -A ftcolors ${(@Ms:=:)${(@s.:.)LS_COLORS}:#[[:alpha:]][[:alpha:]]=*}
 
+	local -a columns
 	() {
-		local avail_functions=(${(@)${(@f)"$(typeset -m -f + -- '.el_es::column::*')"}#*::column::})
-		for f in ${ELES_COLUMNS:|avail_functions}; do
+		local avail_columns=(${(@)${(@f)"$(typeset -m -f + -- '.el_es::column::*')"}#*::column::})
+		for f in ${ELES_COLUMNS:|avail_columns}; do
 			echo >&2 "(no such function '.el_es::column::$f')"
 		done
-		ELES_COLUMNS=( ${ELES_COLUMNS:*avail_functions} )
+		columns=( ${ELES_COLUMNS:*avail_columns} )
 	}
 
 	local -A widths
 	local -i len
 	# declare array for each column, strip *::
-	local -a $^ELES_COLUMNS
+	local -a $^columns
 
 	# {{{ Prepare columns
 	for f in ${@:-${~:-'*'}}; do
@@ -212,7 +213,7 @@ el-es(){
 			zstat -s -A hlstat $f
 		fi
 
-		for column in ${(u)ELES_COLUMNS}; do
+		for column in ${(u)columns}; do
 			local entry= width=
 			.el_es::column::$column $f
 			# append to column's associated array
@@ -226,7 +227,7 @@ el-es(){
 	# Otherwise, right-justified, must be done by escape sequence in column
 	local -A pos
 	local -i i=1
-	for column in $ELES_COLUMNS; do
+	for column in $columns; do
 		if (( widths[$column] < 0 ))
 		then (( pos[$column] = i, i -= widths[$column] ))
 		else (( pos[$column] =    i += widths[$column] ))
@@ -235,7 +236,7 @@ el-es(){
 	# }}}
 	# {{{ Print columns
 	for (( i=1; i <= len; i++ )); do
-		for column in $ELES_COLUMNS; do
+		for column in $columns; do
 			printf '\e['"${pos[$column]}G%s" ${(P)${column##*::}[i]}
 		done
 		echo
